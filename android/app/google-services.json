@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "337866648725",
+    "project_id": "mzchat-48f9f",
+    "storage_bucket": "mzchat-48f9f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:337866648725:android:a358c87517ddf2ade67f9c",
+        "android_client_info": {
+          "package_name": "com.example.mzchat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJlm06tYj1r5_lApZurLDaPv6zIKesT2I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
