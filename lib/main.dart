@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import  'package:firebase_core/firebase_core.dart';
+import 'package:mzchat/screens/auth/login.dart';
 import "firebase_options.dart";
 
 void main() async{
@@ -23,10 +25,30 @@ class MyApp extends StatelessWidget {
 
       ),
       darkTheme: ThemeData(useMaterial3: true,colorScheme: ColorScheme.fromSeed(seedColor: Colors.purple ,brightness: Brightness.dark)),
-      home: const MyHomePage(title: 'Mz chat'),
+      home: AuthGate(),
       themeMode: ThemeMode.system,
     );
   }
+}
+
+
+class AuthGate extends StatelessWidget{
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+  return StreamBuilder<User?>(stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context , snapshot) {
+       if(snapshot.connectionState == ConnectionState.waiting){
+         return  const Scaffold(body: Center(child: CircularProgressIndicator(),),);
+       }
+
+       if (snapshot.hasData) return const MyHomePage(title: "Home");
+      return LoginScreen();
+      });
+  }
+
+  
 }
 
 class MyHomePage extends StatefulWidget {

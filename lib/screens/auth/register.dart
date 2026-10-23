@@ -1,34 +1,271 @@
 import 'package:flutter/material.dart';
+import 'package:mzchat/screens/auth/login.dart';
+import 'package:mzchat/screens/auth/register.dart';
 
-class register extends  StatefulWidget{
-    const register({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<StatefulWidget> createState() => registerScreen();
-
-
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
+class _RegisterScreenState extends State<RegisterScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _userController = TextEditingController();
+  final _passController = TextEditingController();
+  bool _obscure = true;
+  bool _loading = false;
 
-class registerScreen extends State<register>{
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Center(
-          child: Card(
-            child:Column(children: [
-              Text("User Name : "),
-              TextFormField(decoration: InputDecoration(hintText: "User Name", border: OutlineInputBorder()),)
-            ],),
-            elevation: 10,
-            color: Theme.of(context).primaryColorLight,
+  void dispose() {
+    _userController.dispose();
+    _passController.dispose();
+    super.dispose();
+  }
 
-          ),
-        )
+  Future<void> _register() async {
+    FocusScope.of(context).unfocus();
+    if (!_formKey.currentState!.validate()) return;
 
-      ],
+    setState(() => _loading = true);
+    try {
+      // TODO: login logic (Firebase / API)
+      await Future.delayed(const Duration(seconds: 1));
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  InputDecoration _fieldDecoration(
+      BuildContext context, {
+        required String label,
+        required IconData icon,
+        Widget? suffix,
+      }) {
+    final cs = Theme.of(context).colorScheme;
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon, color: cs.primary),
+      suffixIcon: suffix,
+      filled: true,
+      fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+      contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: cs.primary, width: 1.6),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: cs.error),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: cs.error, width: 1.6),
+      ),
     );
   }
 
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Scaffold(
+      backgroundColor: cs.surface,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // ---------- Header ----------
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.fromLTRB(
+                24,
+                MediaQuery.of(context).padding.top + 48,
+                24,
+                56,
+              ),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [cs.primary, cs.tertiary],
+                ),
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(40),
+                  bottomRight: Radius.circular(40),
+                ),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.15),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Image.asset('assets/icon/logo.png', height: 64),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'MZ Chat',
+                    style: textTheme.headlineMedium?.copyWith(
+                      color: cs.onPrimary,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Connect with your people, instantly',
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: cs.onPrimary.withValues(alpha: 0.85),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // ---------- Form ----------
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Welcome back',
+                      style: textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Login to continue chatting',
+                      style: textTheme.bodyMedium
+                          ?.copyWith(color: cs.onSurfaceVariant),
+                    ),
+                    const SizedBox(height: 28),
+                    TextFormField(
+                      controller: _userController,
+                      textInputAction: TextInputAction.next,
+                      decoration: _fieldDecoration(
+                        context,
+                        label: 'User Name',
+                        icon: Icons.person_outline,
+                      ),
+                      validator: (v) => (v == null || v.trim().isEmpty)
+                          ? 'Enter user name'
+                          : null,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _passController,
+                      obscureText: _obscure,
+                      textInputAction: TextInputAction.done,
+                      onFieldSubmitted: (_) => _register(),
+                      decoration: _fieldDecoration(
+                        context,
+                        label: 'Password',
+                        icon: Icons.lock_outline,
+                        suffix: IconButton(
+                          icon: Icon(_obscure
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined),
+                          onPressed: () =>
+                              setState(() => _obscure = !_obscure),
+                        ),
+                      ),
+                      validator: (v) =>
+                      (v == null || v.isEmpty) ? 'Enter password' : null,
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {
+                          // TODO: forgot password
+                        },
+                        child: const Text('Forgot password?'),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 54,
+                      child: FilledButton(
+                        style: FilledButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        onPressed: _loading ? null : _register,
+                        child: _loading
+                            ? SizedBox(
+                          height: 22,
+                          width: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.4,
+                            color: cs.onPrimary,
+                          ),
+                        )
+                            : const Text('Rgister'),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("have you account?",
+                            style: textTheme.bodyMedium
+                                ?.copyWith(color: cs.onSurfaceVariant)),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(context,MaterialPageRoute(builder: (context)=> LoginScreen()));
+                          },
+                          child:  RichText(
+                            text: TextSpan(
+                              style: const TextStyle(color: Colors.black, fontSize: 16),
+                              children: [
+                                TextSpan(
+                                  text: 'Login',
+                                  style: const TextStyle(
+                                    color: Colors.blue,
+                                    decoration: TextDecoration.underline,
+                                  ),
+
+
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
